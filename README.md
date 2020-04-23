@@ -3,4 +3,4 @@
 [Edit on StackBlitz ⚡️](https://stackblitz.com/edit/firebase-gtk-web-start-omamaa)
 
 Deploymwnt url:
-https://fir-web-codelab-7270e.firebaseapp.com/?64787
+https://fir-web-codelab-7270e.firebaseapp.com
