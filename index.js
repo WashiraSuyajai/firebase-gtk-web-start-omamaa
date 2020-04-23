@@ -78,12 +78,16 @@ firebase.auth().onAuthStateChanged(user => {
     guestbookContainer.style.display = "block";
     // Subscribe to the guestbook collection
     subscribeGuestbook();
+    // Subscribe to the guestbook collection
+    subscribeCurrentRSVP(user);
   } else {
     startRsvpButton.textContent = "RSVP";
     // Hide guestbook for non-logged-in users
     guestbookContainer.style.display = "none";
     // Unsubscribe from the guestbook collection
     unsubscribeGuestbook();
+    // Unsubscribe from the guestbook collection
+    unsubscribeCurrentRSVP();
   }
 });
 // ..
@@ -150,4 +154,82 @@ function unsubscribeGuestbook() {
     guestbookListener();
     guestbookListener = null;
   }
+}
+// ...
+
+// Listen to RSVP responses
+rsvpYes.onclick = () => {
+  // Get a reference to the user's document in the attendees collection
+  //ให้แสดงจำนวนคน โดยมีต่า Attending เป็น true
+  const userDoc = firebase
+    .firestore()
+    .collection("attendees")
+    .doc(firebase.auth().currentUser.uid);
+
+  // If they RSVP'd yes, save a document with attending: true
+  //ถ้ากด Yes ให้ Attending เป็น true
+  userDoc
+    .set({
+      attending: true
+    })
+    .catch(console.error);
+};
+rsvpNo.onclick = () => {
+  // Get a reference to the user's document in the attendees collection
+  const userDoc = firebase
+    .firestore()
+    .collection("attendees")
+    .doc(firebase.auth().currentUser.uid);
+
+  // If they RSVP'd no, save a document with attending: false
+  //ถ้ากด No ให้ Attending เป็น false
+  userDoc
+    .set({
+      attending: false
+    })
+    .catch(console.error);
+};
+// ...
+// Listen for attendee list
+//แสดงจำนวนคนที่เช้ามา Attending
+firebase
+  .firestore()
+  .collection("attendees")
+  .where("attending", "==", true)
+  .onSnapshot(snap => {
+    const newAttendeeCount = snap.docs.length;
+
+    numberAttending.innerHTML = newAttendeeCount + " people going";
+  });
+// ...
+// Listen for attendee list
+function subscribeCurrentRSVP(user) {
+  rsvpListener = firebase
+    .firestore()
+    .collection("attendees")
+    .doc(user.uid)
+    .onSnapshot(doc => {
+      if (doc && doc.data()) {
+        const attendingResponse = doc.data().attending;
+
+        // Update css classes for buttons
+        if (attendingResponse) {
+          rsvpYes.className = "clicked";
+          rsvpNo.className = "";
+        } else {
+          rsvpYes.className = "";
+          rsvpNo.className = "clicked";
+        }
+      }
+    });
+}
+// ...
+
+function unsubscribeCurrentRSVP() {
+  if (rsvpListener != null) {
+    rsvpListener();
+    rsvpListener = null;
+  }
+  rsvpYes.className = "";
+  rsvpNo.className = "";
 }
