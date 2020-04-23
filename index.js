@@ -58,3 +58,8 @@ const uiConfig = {
 // const ui = new firebaseui.auth.AuthUI(firebase.auth());
 // Initialize the FirebaseUI widget using Firebase
 const ui = new firebaseui.auth.AuthUI(firebase.auth());
+// Listen to RSVP button clicks
+startRsvpButton.addEventListener("click",
+ () => {
+      ui.start("#firebaseui-auth-container", uiConfig);
+});
